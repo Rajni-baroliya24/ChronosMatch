@@ -9,6 +9,7 @@ This module handles latency benchmarking, market data feed validation, and stres
 3. **Data Feed Validation**: Checks structure of incoming market data ticks.
 4. **Stress Testing**: Simulates multi-batch execution under high volume.
 5. **Logging & Diagnostics**: Captures runtime performance logs for review.
+6. **Edge Case Validation**: Catches malformed market orders and negative price inputs.
 
 ## How to Run Tests
 ```bash
