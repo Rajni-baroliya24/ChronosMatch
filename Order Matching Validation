@@ -1,0 +1,9 @@
+def can_match(buy_price, sell_price):
+    if buy_price >= sell_price:
+        return True
+    return False
+
+
+print(can_match(110, 100))  # True
+print(can_match(90, 100))   # False
+print(can_match(100, 100))  # True
