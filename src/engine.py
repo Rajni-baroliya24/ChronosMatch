@@ -1,5 +1,4 @@
-
-"""Integration module: route binary market-data messages to symbol order books."""
+"""Route binary market data to order books and record executed trades."""
 
 from .market_data import iter_orders
 from .models import Order, Trade
@@ -14,27 +13,39 @@ class ChronosMatchEngine:
         self.trade_history = TradeHistoryManager()
 
     def submit(self, order: Order) -> list[Trade]:
-        # IDs are globally unique across symbols in this reference engine.
         if order.order_id in self._seen_ids:
             raise ValueError("duplicate global order id")
 
         self._seen_ids.add(order.order_id)
-        book = self.books.setdefault(order.symbol, OrderBook(order.symbol))
+        book = self.books.setdefault(
+            order.symbol, OrderBook(order.symbol)
+        )
 
-        # Match orders using the existing order-book logic.
         trades = book.submit(order)
 
-        # Automatically record every executed trade.
         for trade in trades:
             self.trade_history.add_trade(trade)
 
         return trades
 
-    def ingest(self, buffer: bytes | bytearray | memoryview) -> list[Trade]:
-        # Decode first to reject malformed streams before submitting orders.
+    def ingest(
+        self, buffer: bytes | bytearray | memoryview
+    ) -> list[Trade]:
+        # Decode before changing any order books.
         orders = list(iter_orders(buffer))
-        trades: list[Trade] = []
 
+        # Reject duplicate IDs before submitting any batch orders.
+        batch_ids: set[int] = set()
+        for order in orders:
+            if (
+                order.order_id in self._seen_ids
+                or order.order_id in batch_ids
+            ):
+                raise ValueError("duplicate global order id")
+
+            batch_ids.add(order.order_id)
+
+        trades: list[Trade] = []
         for order in orders:
             trades.extend(self.submit(order))
 

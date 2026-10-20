@@ -1,171 +1,121 @@
+"""Run `python app.py`, then open http://127.0.0.1:5000."""
+import csv
+import io
+import os
+from pathlib import Path
 
-"""ChronosMatch local Flask trading dashboard."""
-
-from threading import Lock
-
-from flask import Flask, jsonify, render_template, request
-
-from src.engine import ChronosMatchEngine
-from src.models import Order
-
-
-app = Flask(__name__)
-
-# In-memory trading engine for local development.
-engine = ChronosMatchEngine()
-engine_lock = Lock()
+from flask import Flask, Response, jsonify, request, send_from_directory
+from werkzeug.exceptions import HTTPException
+from src.service import TradingService
 
 
-def serialize_trade(trade):
-    """Convert a trade object into JSON-compatible data."""
-    return {
-        "buy_order_id": trade.buy_order_id,
-        "sell_order_id": trade.sell_order_id,
-        "symbol": trade.symbol,
-        "price": trade.price,
-        "quantity": trade.quantity,
-    }
+def create_app(database=None, seed=True):
+    web = Path(__file__).resolve().parent / "web"
+    app = Flask(__name__, static_folder=str(web), static_url_path="/assets")
+    app.config["MAX_CONTENT_LENGTH"] = 128 * 1024
+    service = TradingService(database if database is not None else os.environ.get("CHRONOS_DB", str(Path(__file__).parent / "data" / "chronosmatch.sqlite3")), seed=seed)
+    app.extensions["trading"] = service
 
+    @app.before_request
+    def same_origin_writes():
+        if request.method in ("POST", "PUT", "PATCH", "DELETE"):
+            origin = request.headers.get("Origin")
+            if origin and origin != request.host_url.rstrip("/"):
+                return jsonify(error="Use the application from its own origin"), 403
+            if request.headers.get("Sec-Fetch-Site") == "cross-site":
+                return jsonify(error="Cross-site changes are not allowed"), 403
+            if not request.is_json:
+                return jsonify(error="Send an application/json object"), 415
 
-@app.get("/")
-def home():
-    """Serve the ChronosMatch dashboard."""
-    return render_template("index.html")
+    @app.after_request
+    def headers(response):
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["Referrer-Policy"] = "same-origin"
+        if request.path.startswith("/api/"):
+            response.headers["Cache-Control"] = "no-store"
+        return response
 
+    def body():
+        data = request.get_json(silent=True)
+        if not isinstance(data, dict):
+            raise ValueError("Expected a JSON object")
+        return data
 
-@app.post("/api/orders")
-def submit_order():
-    """Validate and submit a BUY or SELL order."""
-    data = request.get_json(silent=True)
+    @app.errorhandler(ValueError)
+    def bad_request(error):
+        return jsonify(error=str(error)), 400
 
-    if not isinstance(data, dict):
-        return jsonify(
-            error="Please provide a valid JSON order."
-        ), 400
+    @app.errorhandler(KeyError)
+    def not_found(error):
+        return jsonify(error=str(error).strip("'")), 404
 
-    required_fields = (
-        "order_id",
-        "symbol",
-        "side",
-        "price",
-        "quantity",
-        "timestamp",
-    )
+    @app.errorhandler(HTTPException)
+    def http_error(error):
+        if request.path.startswith("/api/"):
+            return jsonify(error=error.description), error.code
+        return error
 
-    for field in required_fields:
-        if field not in data:
-            return jsonify(
-                error=f"Missing required field: {field}"
-            ), 400
+    @app.get("/")
+    def index():
+        return send_from_directory(web, "index.html")
 
-    try:
-        order_id = int(data["order_id"])
-        symbol = str(data["symbol"]).strip().upper()
-        side = str(data["side"]).strip().upper()
-        price = int(data["price"])
-        quantity = int(data["quantity"])
-        timestamp = int(data["timestamp"])
+    @app.get("/api/health")
+    def health():
+        return jsonify(status="ok", mode="python", storage="sqlite", wire_bytes=37)
 
-        if order_id <= 0:
-            raise ValueError("Order ID must be positive.")
+    @app.get("/api/state")
+    def state():
+        return jsonify(service.snapshot(request.args.get("symbol", "AAPL")))
 
-        if not symbol:
-            raise ValueError("Symbol cannot be empty.")
+    @app.post("/api/orders")
+    def submit():
+        record = service.submit(body())
+        return jsonify(order=record, state=service.snapshot(record["symbol"])), 201
 
-        if side not in ("BUY", "SELL"):
-            raise ValueError("Side must be BUY or SELL.")
+    @app.post("/api/orders/<int:oid>/cancel")
+    def cancel(oid):
+        body()
+        record = service.cancel(oid)
+        return jsonify(state=service.snapshot(record["symbol"]))
 
-        if price <= 0:
-            raise ValueError("Price must be greater than zero.")
+    @app.post("/api/demo/tick")
+    def demo():
+        data = body()
+        symbol = data.get("symbol", "AAPL")
+        service.tick(symbol)
+        return jsonify(state=service.snapshot(symbol))
 
-        if quantity <= 0:
-            raise ValueError("Quantity must be greater than zero.")
+    @app.post("/api/risk")
+    def risk():
+        return jsonify(risk=service.update_risk(body()))
 
-        if timestamp < 0:
-            raise ValueError("Timestamp cannot be negative.")
+    @app.post("/api/reset")
+    def reset():
+        body()
+        service.reset()
+        return jsonify(state=service.snapshot())
 
-        order = Order(
-            order_id=order_id,
-            symbol=symbol,
-            side=side,
-            price=price,
-            quantity=quantity,
-            timestamp=timestamp,
-        )
+    @app.post("/api/benchmark")
+    def benchmark():
+        return jsonify(result=service.benchmark(body().get("count", 5000)))
 
-        with engine_lock:
-            trades = engine.submit(order)
+    @app.get("/api/export")
+    def export():
+        kind = request.args.get("kind", "orders")
+        if kind not in ("orders", "trades"):
+            raise ValueError("Export kind must be orders or trades")
+        snapshot = service.snapshot(request.args.get("symbol", "AAPL"))
+        records = snapshot[kind]
+        fields = (["id", "symbol", "side", "type", "price", "quantity", "filled", "remaining", "status", "source", "time"]
+                  if kind == "orders" else ["id", "symbol", "side", "price", "quantity", "buy_order_id", "sell_order_id", "time"])
+        output = io.StringIO(newline="")
+        writer = csv.DictWriter(output, fields, extrasaction="ignore")
+        writer.writeheader()
+        writer.writerows(records)
+        return Response(output.getvalue(), mimetype="text/csv", headers={"Content-Disposition": f'attachment; filename="chronosmatch-{kind}.csv"'})
 
-        return jsonify(
-            message="Order submitted successfully",
-            order_id=order.order_id,
-            symbol=order.symbol,
-            trades=[
-                serialize_trade(trade)
-                for trade in trades
-            ],
-        ), 201
-
-    except (ValueError, TypeError, KeyError, OverflowError) as exc:
-        return jsonify(error=str(exc)), 400
-
-
-@app.get("/api/trades")
-def get_trades():
-    """Return all executed trades."""
-    with engine_lock:
-        trades = engine.trade_history.get_all_trades()
-
-        return jsonify([
-            serialize_trade(trade)
-            for trade in trades
-        ])
-
-
-@app.get("/api/stats")
-def get_stats():
-    """Return current trading statistics."""
-    with engine_lock:
-        history = engine.trade_history
-
-        return jsonify(
-            total_trades=history.get_total_trades(),
-            total_volume=history.get_total_volume(),
-            total_traded_value=(
-                history.get_total_traded_value()
-            ),
-        )
-
-
-@app.get("/api/book/<symbol>")
-def get_book(symbol):
-    """Return the current order book for a symbol."""
-    symbol = symbol.strip().upper()
-
-    if not symbol:
-        return jsonify(error="Symbol is required."), 400
-
-    with engine_lock:
-        book = engine.book(symbol)
-        return jsonify(book.depth())
-
-
-@app.post("/api/reset")
-def reset_dashboard():
-    """Clear the current in-memory trading session."""
-    global engine
-
-    with engine_lock:
-        engine = ChronosMatchEngine()
-
-    return jsonify(
-        message="Dashboard reset successfully"
-    ), 200
+    return app
 
 
 if __name__ == "__main__":
-    app.run(
-        host="127.0.0.1",
-        port=5000,
-        debug=True,
-    )
+    create_app().run(host="127.0.0.1", port=5000, debug=False)

@@ -1,6 +1,6 @@
 """Akash module: fixed-width binary order messages with memoryview parsing.
 
-Wire format (network byte order, 34 bytes):
+Wire format (network byte order, 37 bytes):
   uint64 order_id; 8-byte ASCII symbol (NUL padded); uint8 side (1 BUY/2 SELL);
   uint64 price_ticks; uint32 quantity; uint64 timestamp.
 
