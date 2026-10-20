@@ -1,0 +1,210 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>ChronosMatch | Trading Dashboard</title>
+
+  <!-- External CSS -->
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/style.css') }}"
+  >
+
+  <!-- External JavaScript -->
+  <script
+    src="{{ url_for('static', filename='js/dashboard.js') }}"
+    defer
+  ></script>
+</head>
+
+<body>
+
+  <header>
+    <h1>ChronosMatch</h1>
+    <p>Python Reference Trading Engine · Local Dashboard</p>
+  </header>
+
+  <main>
+
+    <!-- STATISTICS -->
+    <section class="grid">
+
+      <div class="card">
+        <h3>Executed Trades</h3>
+        <div class="value" id="totalTrades">0</div>
+      </div>
+
+      <div class="card">
+        <h3>Traded Volume</h3>
+        <div class="value" id="totalVolume">0</div>
+      </div>
+
+      <div class="card">
+        <h3>Total Traded Value</h3>
+        <div class="value" id="totalValue">0</div>
+      </div>
+
+    </section>
+
+    <section class="grid">
+
+      <!-- ORDER SUBMISSION -->
+      <div class="card">
+
+        <h2>Submit Order</h2>
+
+        <form id="orderForm">
+
+          <label for="orderId">Order ID</label>
+          <input
+            id="orderId"
+            name="order_id"
+            type="number"
+            min="1"
+            value="1"
+            required
+          >
+
+          <label for="symbol">Symbol</label>
+          <input
+            id="symbol"
+            name="symbol"
+            value="AAPL"
+            required
+          >
+
+          <label for="side">Side</label>
+          <select id="side" name="side" required>
+            <option value="BUY">BUY</option>
+            <option value="SELL">SELL</option>
+          </select>
+
+          <label for="price">Price (integer ticks)</label>
+          <input
+            id="price"
+            name="price"
+            type="number"
+            min="1"
+            step="1"
+            value="9900"
+            required
+          >
+
+          <label for="quantity">Quantity</label>
+          <input
+            id="quantity"
+            name="quantity"
+            type="number"
+            min="1"
+            step="1"
+            value="10"
+            required
+          >
+
+          <label for="timestamp">Timestamp</label>
+          <input
+            id="timestamp"
+            name="timestamp"
+            type="number"
+            min="0"
+            step="1"
+            value="1"
+            required
+          >
+
+          <button id="submitButton" type="submit">
+            Submit Order
+          </button>
+
+        </form>
+
+        <p
+          id="message"
+          role="status"
+          aria-live="polite"
+        ></p>
+
+      </div>
+
+      <!-- ORDER BOOK -->
+      <div class="card">
+
+        <h2>Order Book</h2>
+
+        <label for="bookSymbol">View Symbol</label>
+        <input
+          id="bookSymbol"
+          type="text"
+          value="AAPL"
+        >
+
+        <button
+          id="refreshButton"
+          type="button"
+        >
+          Refresh Dashboard
+        </button>
+
+        <button
+          id="resetButton"
+          type="button"
+          class="reset-button"
+        >
+          Reset Dashboard
+        </button>
+
+        <p id="refreshStatus" role="status" aria-live="polite"></p>
+
+        <div class="table-wrap">
+
+          <table>
+            <thead>
+              <tr>
+                <th class="buy">Bid Price</th>
+                <th class="buy">Bid Qty</th>
+                <th class="sell">Ask Price</th>
+                <th class="sell">Ask Qty</th>
+              </tr>
+            </thead>
+
+            <tbody id="bookRows"></tbody>
+          </table>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- TRADE HISTORY -->
+    <section class="card">
+
+      <h2>Executed Trade History</h2>
+
+      <div class="table-wrap">
+
+        <table>
+          <thead>
+            <tr>
+              <th>Buy ID</th>
+              <th>Sell ID</th>
+              <th>Symbol</th>
+              <th>Price</th>
+              <th>Quantity</th>
+            </tr>
+          </thead>
+
+          <tbody id="tradeRows"></tbody>
+        </table>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</body>
+</html>

@@ -1,0 +1,416 @@
+
+/* ========================================
+   CHRONOSMATCH TRADING DASHBOARD
+   External CSS — Dark Theme
+======================================== */
+
+:root {
+  color-scheme: dark;
+
+  --bg: #080e1c;
+  --card: #131d30;
+  --card-hover: #19253b;
+  --input-bg: #0b1425;
+
+  --border: #293750;
+  --text: #f0f5ff;
+  --muted: #a0aec7;
+
+  --primary: #5777ff;
+  --primary-hover: #415fe3;
+
+  --buy: #36d8a2;
+  --sell: #ff7389;
+
+  --danger: #e3485d;
+  --danger-hover: #c93448;
+
+  --radius: 14px;
+  --shadow: 0 8px 28px rgba(0, 0, 0, 0.16);
+}
+
+/* ========================================
+   GLOBAL RESET
+======================================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Segoe UI", Arial, sans-serif;
+  line-height: 1.5;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+/* ========================================
+   HEADER
+======================================== */
+
+header {
+  padding: 25px 5%;
+  background: #0e1729;
+  border-bottom: 1px solid var(--border);
+}
+
+header h1 {
+  font-size: 30px;
+  font-weight: 750;
+  letter-spacing: -0.8px;
+  color: #ffffff;
+}
+
+header p {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+/* ========================================
+   MAIN LAYOUT
+======================================== */
+
+main {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 30px 24px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(min(100%, 300px), 1fr)
+  );
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+/* ========================================
+   CARDS
+======================================== */
+
+.card {
+  min-width: 0;
+  padding: 25px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  transition: border-color 0.2s ease;
+}
+
+.card:hover {
+  border-color: #3b5075;
+}
+
+.card h2 {
+  margin-bottom: 22px;
+  font-size: 21px;
+  font-weight: 650;
+}
+
+.card h3 {
+  margin-bottom: 12px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 550;
+}
+
+/* ========================================
+   STATISTICS
+======================================== */
+
+.value {
+  font-size: clamp(28px, 4vw, 38px);
+  font-weight: 750;
+  letter-spacing: -1px;
+  color: #ffffff;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ========================================
+   FORM LABELS
+======================================== */
+
+label {
+  display: block;
+  margin-bottom: 7px;
+  color: #dce5f7;
+  font-size: 14px;
+  font-weight: 550;
+}
+
+/* ========================================
+   INPUTS AND SELECTS
+======================================== */
+
+input,
+select {
+  display: block;
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 18px;
+
+  background: var(--input-bg);
+  color: var(--text);
+
+  border: 1px solid #35435e;
+  border-radius: 9px;
+  outline: none;
+
+  transition: border-color 0.2s ease,
+              box-shadow 0.2s ease;
+}
+
+input:focus,
+select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(87, 119, 255, 0.15);
+}
+
+input::placeholder {
+  color: #7b8ca9;
+}
+
+/* ========================================
+   BUTTONS
+======================================== */
+
+button {
+  display: block;
+  width: 100%;
+
+  padding: 13px 18px;
+  margin-top: 10px;
+
+  background: var(--primary);
+  color: #ffffff;
+
+  border: 0;
+  border-radius: 9px;
+
+  font-size: 14px;
+  font-weight: 650;
+  cursor: pointer;
+
+  transition: background 0.2s ease,
+              transform 0.2s ease,
+              opacity 0.2s ease;
+}
+
+button:hover:not(:disabled) {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+button:focus-visible {
+  outline: 2px solid #9aacff;
+  outline-offset: 3px;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+/* Submit order button */
+
+#submitButton {
+  margin-top: 8px;
+  background: var(--primary);
+}
+
+/* Refresh button */
+
+#refreshButton {
+  margin-bottom: 12px;
+}
+
+/* Reset button */
+
+.reset-button,
+#resetButton {
+  background: var(--danger);
+}
+
+.reset-button:hover:not(:disabled),
+#resetButton:hover:not(:disabled) {
+  background: var(--danger-hover);
+}
+
+/* ========================================
+   STATUS MESSAGES
+======================================== */
+
+#message,
+#refreshStatus {
+  min-height: 20px;
+  margin-top: 14px;
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.message-success {
+  color: var(--buy);
+}
+
+.message-error {
+  color: var(--sell);
+}
+
+/* ========================================
+   ORDER BOOK
+======================================== */
+
+#bookSymbol {
+  margin-bottom: 14px;
+}
+
+.buy {
+  color: var(--buy);
+}
+
+.sell {
+  color: var(--sell);
+}
+
+/* ========================================
+   TABLES
+======================================== */
+
+.table-wrap {
+  width: 100%;
+  margin-top: 18px;
+  overflow-x: auto;
+  border-radius: 9px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+thead {
+  background: #1b2940;
+}
+
+th,
+td {
+  padding: 13px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+th {
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.2px;
+  color: #b7c5df;
+}
+
+td {
+  color: #e7edfa;
+  font-variant-numeric: tabular-nums;
+}
+
+tbody tr {
+  transition: background 0.2s ease;
+}
+
+tbody tr:hover {
+  background: rgba(87, 119, 255, 0.07);
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ========================================
+   TRADE HISTORY
+======================================== */
+
+section.card {
+  margin-bottom: 20px;
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+======================================== */
+
+@media (max-width: 768px) {
+  header {
+    padding: 20px;
+  }
+
+  header h1 {
+    font-size: 25px;
+  }
+
+  main {
+    padding: 18px 14px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .card {
+    padding: 19px;
+  }
+
+  .card h2 {
+    font-size: 19px;
+  }
+
+  th,
+  td {
+    padding: 10px 9px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 420px) {
+  header h1 {
+    font-size: 23px;
+  }
+
+  .value {
+    font-size: 30px;
+  }
+
+  button {
+    padding: 12px;
+  }
+}
+
+/* ========================================
+   REDUCED MOTION
+======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
