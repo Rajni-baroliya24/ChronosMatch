@@ -1,0 +1,5 @@
+Cython>=3.0,<4
+setuptools>=75
+wheel>=0.44
+websockets>=14,<18
+windows-curses>=2.4; sys_platform == 'win32'

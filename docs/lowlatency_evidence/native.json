@@ -1,0 +1,24 @@
+{
+  "environment": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "processor": "x86_64",
+    "clock": "time.perf_counter_ns"
+  },
+  "orders": 100000,
+  "trades": 80000,
+  "latency": {
+    "samples": 100000,
+    "median_us": 0.381,
+    "p95_us": 0.763,
+    "p99_us": 1.878,
+    "max_us": 2981.105
+  },
+  "orders_per_second": 607711.5,
+  "gc_collections_during_python_benchmark": 0,
+  "scope": "Native submit wrapper latency; throughput also includes Python record packing and sample recording. No IPC, network or SQLite.",
+  "target_50us_p99_met_in_this_run": true,
+  "hard_latency_guarantee": false,
+  "output_directory": "/workspace/scratch/c425c04e494c/lowlatency-work/final_measurements/native-kd4y84cr"
+}

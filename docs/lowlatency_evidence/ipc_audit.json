@@ -1,0 +1,31 @@
+{
+  "environment": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "processor": "x86_64",
+    "clock": "time.perf_counter_ns"
+  },
+  "capacity": 4096,
+  "mmap": {
+    "transport": "mmap + semaphore SPSC",
+    "orders_verified": 1000000,
+    "checksum": 500000500000,
+    "elapsed_seconds": 4.568237,
+    "orders_per_second": 218902.81,
+    "checks": "Every field compared in sequence; duplicates, gaps and corruption fail the run."
+  },
+  "scope": "IPC only; no native matching or persistence.",
+  "timestamp_field": "Deterministic index*1000 for exact payload verification; wall timing uses perf_counter_ns.",
+  "serialization": "No Pickle/JSON order payloads on mmap path. Spawn still serializes process configuration.",
+  "output_directory": "/workspace/scratch/c425c04e494c/lowlatency-work/final_measurements/audit-mj8rm9go",
+  "queue_baseline": {
+    "transport": "multiprocessing.Queue (Pickle)",
+    "orders_verified": 1000000,
+    "checksum": 500000500000,
+    "elapsed_seconds": 9.771577,
+    "orders_per_second": 102337.63,
+    "checks": "Every field compared in sequence; duplicates, gaps and corruption fail the run."
+  },
+  "mmap_to_queue_throughput_ratio": 2.139
+}

@@ -1,0 +1,61 @@
+{
+  "orders_processed": 100000,
+  "trades_emitted": 80000,
+  "whale_sweeps": 20000,
+  "native_call_latency": {
+    "samples": 100000,
+    "median_us": 1.0,
+    "p95_us": 3.3,
+    "p99_us": 9.6,
+    "max_us": 210.7
+  },
+  "enqueue_to_native_return_latency": {
+    "samples": 100000,
+    "median_us": 699.5,
+    "p95_us": 1761.0,
+    "p99_us": 2422.4,
+    "max_us": 30130.6
+  },
+  "matcher_process_gc_collections": 0,
+  "gc_scope": "Whole Python worker; native loops do not use Python objects. GC is not disabled.",
+  "latency_scope": "Producer stamp to native return; excludes trade publication and SQLite commit.",
+  "whale_definition": "Incoming order completely clearing at least three price levels.",
+  "environment": {
+    "python": "3.13.6 (tags/v3.13.6:4e66535, Aug  6 2025, 14:36:00) [MSC v.1944 64 bit (AMD64)]",
+    "platform": "Windows-11-10.0.26300-SP0",
+    "machine": "AMD64",
+    "processor": "Intel64 Family 6 Model 154 Stepping 4, GenuineIntel",
+    "clock": "time.perf_counter_ns"
+  },
+  "source": "direct",
+  "requested_orders": 100000,
+  "target_rate": 100000,
+  "interrupted": false,
+  "ledger_trades": 80000,
+  "ring_capacity": 64,
+  "orders_ring": {
+    "written": 100000,
+    "read": 100000,
+    "pending": 0
+  },
+  "trades_ring": {
+    "written": 80000,
+    "read": 80000,
+    "pending": 0
+  },
+  "pipeline_orders_per_second": 63775.95,
+  "throughput_scope": "First producer timestamp to final native return; excludes startup and final SQLite drain.",
+  "output_directory": "C:\\Users\\HP\\Downloads\\ChronosMatch_complete_reference\\ChronosMatch_complete\\lowlatency_output\\run-massvid5",
+  "limitations": [
+    "Synchronized SPSC rings; not lock-free.",
+    "Python wrappers, OS scheduling and native allocations remain.",
+    "No durable ingress journal or crash replay of resting native orders.",
+    "Performance targets are measurements to evaluate, not guarantees."
+  ],
+  "targets_observed_in_this_run": {
+    "pipeline_at_least_100k_orders_per_second": false,
+    "native_p99_below_50us": true,
+    "all_native_calls_below_50us": false,
+    "enqueue_to_native_return_p99_below_1ms": false
+  }
+}

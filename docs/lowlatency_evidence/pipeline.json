@@ -1,0 +1,61 @@
+{
+  "orders_processed": 100000,
+  "trades_emitted": 80000,
+  "whale_sweeps": 20000,
+  "native_call_latency": {
+    "samples": 100000,
+    "median_us": 1.055,
+    "p95_us": 1.493,
+    "p99_us": 3.706,
+    "max_us": 367.495
+  },
+  "enqueue_to_native_return_latency": {
+    "samples": 100000,
+    "median_us": 1043.524,
+    "p95_us": 1663.917,
+    "p99_us": 2484.908,
+    "max_us": 6276.292
+  },
+  "matcher_process_gc_collections": 0,
+  "gc_scope": "Whole Python worker; native loops do not use Python objects. GC is not disabled.",
+  "latency_scope": "Producer stamp to native return; excludes trade publication and SQLite commit.",
+  "whale_definition": "Incoming order completely clearing at least three price levels.",
+  "environment": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "processor": "x86_64",
+    "clock": "time.perf_counter_ns"
+  },
+  "source": "direct",
+  "requested_orders": 100000,
+  "target_rate": 100000,
+  "interrupted": false,
+  "ledger_trades": 80000,
+  "ring_capacity": 64,
+  "orders_ring": {
+    "written": 100000,
+    "read": 100000,
+    "pending": 0
+  },
+  "trades_ring": {
+    "written": 80000,
+    "read": 80000,
+    "pending": 0
+  },
+  "pipeline_orders_per_second": 57370.7,
+  "throughput_scope": "First producer timestamp to final native return; excludes startup and final SQLite drain.",
+  "output_directory": "/workspace/scratch/c425c04e494c/lowlatency-work/final_measurements/run-nic60n8d",
+  "limitations": [
+    "Synchronized SPSC rings; not lock-free.",
+    "Python wrappers, OS scheduling and native allocations remain.",
+    "No durable ingress journal or crash replay of resting native orders.",
+    "Performance targets are measurements to evaluate, not guarantees."
+  ],
+  "targets_observed_in_this_run": {
+    "pipeline_at_least_100k_orders_per_second": false,
+    "native_p99_below_50us": true,
+    "all_native_calls_below_50us": false,
+    "enqueue_to_native_return_p99_below_1ms": false
+  }
+}

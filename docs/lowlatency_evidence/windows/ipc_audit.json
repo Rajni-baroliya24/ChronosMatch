@@ -1,0 +1,31 @@
+{
+  "environment": {
+    "python": "3.13.6 (tags/v3.13.6:4e66535, Aug  6 2025, 14:36:00) [MSC v.1944 64 bit (AMD64)]",
+    "platform": "Windows-11-10.0.26300-SP0",
+    "machine": "AMD64",
+    "processor": "Intel64 Family 6 Model 154 Stepping 4, GenuineIntel",
+    "clock": "time.perf_counter_ns"
+  },
+  "capacity": 4096,
+  "mmap": {
+    "transport": "mmap + semaphore SPSC",
+    "orders_verified": 1000000,
+    "checksum": 500000500000,
+    "elapsed_seconds": 4.162587,
+    "orders_per_second": 240235.21,
+    "checks": "Every field compared in sequence; duplicates, gaps and corruption fail the run."
+  },
+  "scope": "IPC only; no native matching or persistence.",
+  "timestamp_field": "Deterministic index*1000 for exact payload verification; wall timing uses perf_counter_ns.",
+  "serialization": "No Pickle/JSON order payloads on mmap path. Spawn still serializes process configuration.",
+  "output_directory": "C:\\Users\\HP\\Downloads\\ChronosMatch_complete_reference\\ChronosMatch_complete\\lowlatency_output\\audit-te6142z5",
+  "queue_baseline": {
+    "transport": "multiprocessing.Queue (Pickle)",
+    "orders_verified": 1000000,
+    "checksum": 500000500000,
+    "elapsed_seconds": 12.155691,
+    "orders_per_second": 82265.99,
+    "checks": "Every field compared in sequence; duplicates, gaps and corruption fail the run."
+  },
+  "mmap_to_queue_throughput_ratio": 2.92
+}
