@@ -104,8 +104,7 @@ def create_app(database=None, seed=True):
         kind = request.args.get("kind", "orders")
         if kind not in ("orders", "trades"):
             raise ValueError("Export kind must be orders or trades")
-        snapshot = service.snapshot(request.args.get("symbol", "AAPL"))
-        records = snapshot[kind]
+        records = service.export_records(kind, request.args.get("symbol", "AAPL"))
         fields = (["id", "symbol", "side", "type", "price", "quantity", "filled", "remaining", "status", "source", "time"]
                   if kind == "orders" else ["id", "symbol", "side", "price", "quantity", "buy_order_id", "sell_order_id", "time"])
         output = io.StringIO(newline="")

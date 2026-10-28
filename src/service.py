@@ -194,6 +194,17 @@ class TradingService:
             self.db.commit()
             self.seed()
 
+    def export_records(self, kind, symbol="AAPL"):
+        """Copy complete symbol records under lock; display limits don't affect CSV."""
+        with self.lock:
+            if kind not in ("orders", "trades"):
+                raise ValueError("Export kind must be orders or trades")
+            if not isinstance(symbol, str) or symbol not in SYMBOLS:
+                raise ValueError("Choose a supported symbol")
+            records = self.orders.values() if kind == "orders" else self.trades
+            selected = [dict(record) for record in records if record["symbol"] == symbol]
+            return list(reversed(selected))
+
     def snapshot(self, symbol="AAPL"):
         with self.lock:
             if not isinstance(symbol, str) or symbol not in SYMBOLS:
