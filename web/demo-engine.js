@@ -34,8 +34,25 @@ class DemoEngine{
   if(typeof symbol!=='string'||!Object.hasOwn(symbols,symbol))throw Error('Choose a supported symbol');
   if(!['BUY','SELL'].includes(side)||!['LIMIT','MARKET'].includes(type))throw Error('Choose BUY or SELL, and LIMIT or MARKET');
   number(quantity,'Quantity',1,this.risk.max_quantity);
-  let ticks;if(type==='MARKET'){const depth=this.depth(symbol)[side==='BUY'?'asks':'bids'];if(!depth.length)throw Error('No opposing liquidity. Add a limit order first.');ticks=Math.round(depth[depth.length-1].price*100)}else{const raw=String(data.price??'');if(!/^\d+(\.\d{1,2})?$/.test(raw)||+raw<=0||+raw>1000000)throw Error('Price must be $0.01–$1,000,000, with at most two decimals');ticks=Math.round(+raw*100)}
-  if(ticks*quantity>this.risk.max_notional*100)throw Error('Order exceeds the maximum order notional in Risk controls');
+  let ticks,marketNotional;
+  if(type==='MARKET'){
+    const depth=this.depth(symbol)[side==='BUY'?'asks':'bids'];
+    if(!depth.length)throw Error('No opposing liquidity. Add a limit order first.');
+    ticks=Math.round(depth[depth.length-1].price*100);
+    let remaining=quantity;marketNotional=0;
+    for(const level of depth){
+      const filled=Math.min(remaining,level.quantity);
+      marketNotional+=Math.round(level.price*100)*filled;
+      remaining-=filled;
+      if(!remaining)break;
+    }
+  }else{
+    const raw=String(data.price??'');
+    if(!/^\d+(\.\d{1,2})?$/.test(raw)||+raw<=0||+raw>1000000)throw Error('Price must be $0.01–$1,000,000, with at most two decimals');
+    ticks=Math.round(+raw*100);
+  }
+  const notional=type==='MARKET'?marketNotional:ticks*quantity;
+  if(notional>this.risk.max_notional*100)throw Error('Order exceeds the maximum order notional in Risk controls');
   return this.submitInternal({symbol,side,type,price_ticks:ticks,quantity},source)
  }
  cancel(id){const o=this.byId.get(id);if(!o||!active(o))throw Error('Order is already closed or does not exist');const levels=this.book(o.symbol)[o.side],queue=levels.get(o.price_ticks);const at=queue.indexOf(o);queue.splice(at,1);if(!queue.length)levels.delete(o.price_ticks);o.status='CANCELLED';o.remaining=0;this.save();return o}

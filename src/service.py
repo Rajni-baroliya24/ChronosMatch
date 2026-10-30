@@ -144,7 +144,19 @@ class TradingService:
                 ticks = depth[-1][0]
             else:
                 ticks = price_ticks(data.get("price"))
-            if ticks * quantity > self.risk["max_notional"] * 100:
+            # LIMIT exposure uses the requested limit value. MARKET orders are
+            # IOC: price only the available fills, in matching priority order.
+            notional_ticks = ticks * quantity
+            if order_type == "MARKET":
+                notional_ticks = 0
+                remaining = quantity
+                for level_price, available in depth:
+                    filled = min(remaining, available)
+                    notional_ticks += level_price * filled
+                    remaining -= filled
+                    if not remaining:
+                        break
+            if notional_ticks > self.risk["max_notional"] * 100:
                 raise ValueError("Order exceeds the maximum order notional in Risk controls")
             return self._submit(symbol, side, order_type, ticks, quantity, source)
 
