@@ -1,0 +1,23 @@
+[
+  {
+    "tick_id": 1,
+    "symbol": "BTC-USD",
+    "bid": 65000.0,
+    "ask": 65001.25,
+    "volume": 12
+  },
+  {
+    "tick_id": 2,
+    "symbol": "ETH-USD",
+    "bid": 3500.0,
+    "ask": 3500.8,
+    "volume": 45
+  },
+  {
+    "tick_id": 3,
+    "symbol": "SOL-USD",
+    "bid": 150.0,
+    "ask": 150.45,
+    "volume": 30
+  }
+]
