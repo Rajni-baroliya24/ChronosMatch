@@ -1,0 +1,41 @@
+name: ChronosMatch native pipeline
+
+on:
+  push:
+    branches: [main, develop, 'feature/**']
+  pull_request:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  native:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    env:
+      CHRONOS_REQUIRE_NATIVE: '1'
+      PYTHONUTF8: '1'
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - name: Install native development dependencies
+        run: python -m pip install -r requirements-dev.txt -r requirements-lowlatency.txt
+      - name: Compile native matching engine
+        run: python setup_lowlatency.py build_ext --inplace
+      - name: Verify mmap, native matcher, WebSocket ingestion and ledger
+        run: python -m pytest tests_lowlatency -q
+      - name: Small two-process audit
+        run: python -m lowlatency.audit --count 10000
