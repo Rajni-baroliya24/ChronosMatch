@@ -1,0 +1,7 @@
+{
+  "test_environment": "staging",
+  "latency_threshold_ms": 50.0,
+  "stress_test_batches": 5,
+  "stress_test_events_per_batch": 1000,
+  "log_file_path": "test_execution.log"
+}
